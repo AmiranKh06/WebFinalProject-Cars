@@ -3,25 +3,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — Project Name</title>
+  <title>Profile — CarDealer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-page="profile">
 
-  <main>
+  <header class="header">
+    <div class="header__inner">
+      <a class="header__logo" href="index.html">
+        <span class="header__logo-icon">⬡</span>
+        <span class="header__logo-text">CarDealer</span>
+      </a>
+      <nav class="header__nav">
+        <a class="header__nav-link" href="index.html">Discover</a>
+        <a class="header__nav-link" href="garage.html">My Garage</a>
+        <a class="header__nav-link header__nav-link--active" href="profile.html">Profile</a>
+      </nav>
+    </div>
+  </header>
 
-    <form id="login-form">
-      <!-- input type="text" with validation attributes -->
-      <label for="name-input">Your name</label>
-      <input id="name-input" type="text" name="name" required minlength="2" autocomplete="name">
+  <main class="main">
 
-      <p id="login-error" hidden></p>
+    <section class="page-header">
+      <h1 class="page-header__title">Driver Profile</h1>
+      <p class="page-header__subtitle">Saved locally on this device — no account needed.</p>
+    </section>
 
-      <button type="submit">Start →</button>
-    </form>
+    <section class="profile-section">
 
+      <form class="profile-form" id="profile-form" novalidate>
+
+        <div class="form-group">
+          <label class="form-group__label" for="display-name">
+            Display Name <span class="form-group__required">*</span>
+          </label>
+          <input
+            class="form-group__input"
+            type="text"
+            id="display-name"
+            name="displayName"
+            placeholder="e.g. SpeedKing"
+            required
+            minlength="2"
+            maxlength="30"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-group__label" for="email">Email</label>
+          <input
+            class="form-group__input"
+            type="email"
+            id="email"
+            name="email"
+            placeholder="your@email.com"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-group__label" for="birth-year">Birth Year</label>
+          <input
+            class="form-group__input"
+            type="number"
+            id="birth-year"
+            name="birthYear"
+            placeholder="e.g. 1995"
+            min="1940"
+            max="2010"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-group__label" for="preferred-type">Preferred Car Type</label>
+          <select class="form-group__select" id="preferred-type" name="preferredType">
+            <option value="">Select a type…</option>
+            <option value="sedan">Sedan</option>
+            <option value="suv">SUV / Crossover</option>
+            <option value="sports">Sports Car</option>
+            <option value="truck">Truck</option>
+            <option value="electric">Electric</option>
+            <option value="classic">Classic / Vintage</option>
+          </select>
+        </div>
+
+        <fieldset class="form-group form-group--fieldset">
+          <legend class="form-group__label">Favorite Brands</legend>
+          <div class="checkbox-grid">
+            <label class="checkbox-item">
+              <input class="checkbox-item__input" type="checkbox" name="brands" value="toyota"> Toyota
+            </label>
+            <label class="checkbox-item">
+              <input class="checkbox-item__input" type="checkbox" name="brands" value="bmw"> BMW
+            </label>
+            <label class="checkbox-item">
+              <input class="checkbox-item__input" type="checkbox" name="brands" value="ford"> Ford
+            </label>
+            <label class="checkbox-item">
+              <input class="checkbox-item__input" type="checkbox" name="brands" value="honda"> Honda
+            </label>
+            <label class="checkbox-item">
+              <input class="checkbox-item__input" type="checkbox" name="brands" value="mercedes"> Mercedes
+            </label>
+            <label class="checkbox-item">
+              <input class="checkbox-item__input" type="checkbox" name="brands" value="porsche"> Porsche
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-group form-group--fieldset">
+          <legend class="form-group__label">Driving Style</legend>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input class="radio-item__input" type="radio" name="drivingStyle" value="comfort">
+              <span>Comfort — smooth rides and long trips</span>
+            </label>
+            <label class="radio-item">
+              <input class="radio-item__input" type="radio" name="drivingStyle" value="sport">
+              <span>Sport — performance and handling first</span>
+            </label>
+            <label class="radio-item">
+              <input class="radio-item__input" type="radio" name="drivingStyle" value="offroad">
+              <span>Off-road — built for any terrain</span>
+            </label>
+            <label class="radio-item">
+              <input class="radio-item__input" type="radio" name="drivingStyle" value="eco">
+              <span>Eco — fuel efficiency above all</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="form-group">
+          <label class="form-group__label" for="bio">About You</label>
+          <textarea
+            class="form-group__textarea"
+            id="bio"
+            name="bio"
+            placeholder="Your dream car, where you like to drive, anything about your car story…"
+            rows="4"
+            maxlength="300"
+          ></textarea>
+          <span class="form-group__hint"><span id="bio-count">0</span> / 300</span>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn--primary" type="submit">Save Profile</button>
+          <button class="btn btn--ghost" type="button" id="clear-btn">Clear</button>
+        </div>
+
+        <div class="form-feedback" id="form-feedback" aria-live="polite"></div>
+      </form>
+
+      <aside class="profile-preview" id="profile-preview">
+        <h2 class="profile-preview__title">Saved Profile</h2>
+        <div id="profile-preview-content">
+          <p class="profile-preview__empty">No profile saved yet.</p>
+        </div>
+      </aside>
+
+    </section>
   </main>
 
-  <script type="module" src="js/login.js"></script>
+  <footer class="footer">
+    <div class="footer__inner">
+      <span class="footer__brand">⬡ CarDealer</span>
+      <span class="footer__note">Data by <a class="footer__link" href="https://api-ninjas.com" target="_blank" rel="noopener">API Ninjas</a></span>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
