@@ -3,48 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Name</title>
+  <title>AutoVault — Discover Cars</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-page="index">
 
-  <header>
-    <nav>
-      <span class="nav__logo">Project Name</span>
-      <div class="nav__links">
-        <a href="index.html">Search</a>
-        <a href="saved.html">Saved</a>
-      </div>
-      <div class="nav__actions">
-        <span id="nav-user"></span>
-        <button id="logout-btn" type="button">Logout</button>
-      </div>
-    </nav>
+  <header class="header">
+    <div class="header__inner">
+      <a class="header__logo" href="index.html">
+        <span class="header__logo-icon">⬡</span>
+        <span class="header__logo-text">AutoVault</span>
+      </a>
+      <nav class="header__nav">
+        <a class="header__nav-link header__nav-link--active" href="index.html">Discover</a>
+        <a class="header__nav-link" href="garage.html">My Garage</a>
+        <a class="header__nav-link" href="profile.html">Profile</a>
+      </nav>
+    </div>
   </header>
 
-  <main>
+  <main class="main">
 
-    <!-- search / filter form -->
-    <section>
-      <form id="search-form">
-        <!-- add your inputs here (at least 3 different types) -->
-        <button type="submit">Search</button>
+    <section class="hero">
+      <p class="hero__eyebrow">Find your next car</p>
+      <h1 class="hero__title">Every Car.<br>One Place.</h1>
+      <p class="hero__subtitle">Search specs across hundreds of makes and models. Save the ones you love.</p>
+    </section>
+
+    <section class="search-section">
+      <form class="search-form" id="search-form" novalidate>
+        <div class="search-form__row">
+          <div class="search-form__field">
+            <label class="search-form__label" for="input-make">Make <span class="search-form__required">*</span></label>
+            <input
+              class="search-form__input"
+              type="text"
+              id="input-make"
+              name="make"
+              placeholder="e.g. Toyota"
+              required
+              minlength="2"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="search-form__field">
+            <label class="search-form__label" for="input-model">Model</label>
+            <input
+              class="search-form__input"
+              type="text"
+              id="input-model"
+              name="model"
+              placeholder="e.g. Supra"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="search-form__field">
+            <label class="search-form__label" for="input-year">Year</label>
+            <select class="search-form__select" id="input-year" name="year">
+              <option value="">Any year</option>
+            </select>
+          </div>
+
+          <div class="search-form__field">
+            <label class="search-form__label" for="input-fuel">Fuel Type</label>
+            <select class="search-form__select" id="input-fuel" name="fuel_type">
+              <option value="">Any fuel</option>
+              <option value="gas">Gasoline</option>
+              <option value="diesel">Diesel</option>
+              <option value="electricity">Electric</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="search-form__actions">
+          <button class="btn btn--primary" type="submit">Search Cars</button>
+          <button class="btn btn--ghost" type="reset" id="reset-btn">Clear</button>
+        </div>
+
+        <p class="search-form__error" id="search-error" aria-live="polite"></p>
       </form>
     </section>
 
-    <!-- loading and error states -->
-    <p id="loading-msg" hidden>Loading…</p>
-    <p id="error-msg" hidden></p>
+    <section class="results" id="results-section">
+      <div class="loading" id="loading" hidden>
+        <div class="loading__spinner"></div>
+        <p class="loading__text">Searching cars…</p>
+      </div>
 
-    <!-- dynamically generated cards land here -->
-    <section>
-      <div id="results-grid"></div>
+      <div class="error-message" id="error-message" hidden>
+        <p class="error-message__text" id="error-text"></p>
+      </div>
+
+      <div class="results__grid" id="results-grid"></div>
     </section>
 
   </main>
 
-  <footer>
-    <!-- footer content -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <span class="footer__brand">⬡ AutoVault</span>
+      <span class="footer__note">Data by <a class="footer__link" href="https://api-ninjas.com" target="_blank" rel="noopener">API Ninjas</a></span>
+    </div>
   </footer>
 
   <script type="module" src="js/main.js"></script>
