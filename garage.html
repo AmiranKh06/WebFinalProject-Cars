@@ -3,39 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Saved — Project Name</title>
+  <title>My Garage — CarDealer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-page="garage">
 
-  <header>
-    <nav>
-      <span class="nav__logo">Project Name</span>
-      <div class="nav__links">
-        <a href="index.html">Search</a>
-        <a href="saved.html">Saved</a>
-      </div>
-      <div class="nav__actions">
-        <span id="nav-user"></span>
-        <button id="logout-btn" type="button">Logout</button>
-      </div>
-    </nav>
+  <header class="header">
+    <div class="header__inner">
+      <a class="header__logo" href="index.html">
+        <span class="header__logo-icon">⬡</span>
+        <span class="header__logo-text">CarDealer</span>
+      </a>
+      <nav class="header__nav">
+        <a class="header__nav-link" href="index.html">Discover</a>
+        <a class="header__nav-link header__nav-link--active" href="garage.html">My Garage</a>
+        <a class="header__nav-link" href="profile.html">Profile</a>
+      </nav>
+    </div>
   </header>
 
-  <main>
+  <main class="main">
 
-    <section>
-      <h2>Saved Items</h2>
-      <p id="saved-empty" hidden>Nothing saved yet.</p>
-      <div id="saved-grid"></div>
+    <section class="page-header">
+      <div class="page-header__text">
+        <h1 class="page-header__title">My Garage</h1>
+        <p class="page-header__count" id="garage-count">0 cars saved</p>
+      </div>
+    </section>
+
+    <section class="garage-controls">
+      <div class="filter-tabs" id="filter-tabs" role="tablist">
+        <button class="filter-tab filter-tab--active" data-filter="all" role="tab" aria-selected="true">All</button>
+        <button class="filter-tab" data-filter="wishlist" role="tab" aria-selected="false">Wishlist</button>
+        <button class="filter-tab" data-filter="owned" role="tab" aria-selected="false">Owned</button>
+        <button class="filter-tab" data-filter="test_driven" role="tab" aria-selected="false">Test Driven</button>
+      </div>
+    </section>
+
+    <section class="garage-section" id="garage-section">
+      <div class="empty-state" id="empty-state">
+        <p class="empty-state__icon">🚗</p>
+        <p class="empty-state__title">Your garage is empty</p>
+        <p class="empty-state__subtitle">
+          Search for cars on the <a class="empty-state__link" href="index.html">Discover</a> page and save them here.
+        </p>
+      </div>
+      <div class="results__grid" id="garage-grid"></div>
     </section>
 
   </main>
 
-  <footer>
-    <!-- footer content -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <span class="footer__brand">⬡ CarDealer</span>
+      <span class="footer__note">Data by <a class="footer__link" href="https://api-ninjas.com" target="_blank" rel="noopener">API Ninjas</a></span>
+    </div>
   </footer>
 
-  <script type="module" src="js/saved.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
