@@ -1,15 +1,23 @@
-const BASE_URL = ''; // replace with your API base URL
+const API_KEY = 'hC9QqzaHwrBJ3IBDTHYyqN8Aumij6sBqiJWjcOE8';
+const BASE_URL = 'https://api.api-ninjas.com/v1/cars';
 
-export async function fetchData(endpoint) {
-  // fetch, check response.ok, return response.json()
-}
+// Fetches cars from API Ninjas — make is required, rest are optional filters
+export async function searchCars({ make, model, year, fuel_type, limit = 9 }) {
+  const params = new URLSearchParams();
 
-// localStorage helpers — import these wherever you need saved state
-export function getSaved() {
-  const raw = localStorage.getItem('savedItems');
-  return raw ? JSON.parse(raw) : [];
-}
+  params.set('make', make.trim());
+  if (model)     params.set('model',     model.trim());
+  if (year)      params.set('year',      year);
+  if (fuel_type) params.set('fuel_type', fuel_type);
+  params.set('limit', limit);
 
-export function setSaved(items) {
-  localStorage.setItem('savedItems', JSON.stringify(items));
+  const response = await fetch(`${BASE_URL}?${params}`, {
+    headers: { 'X-Api-Key': API_KEY }
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json(); // API Ninjas returns an array directly
 }
