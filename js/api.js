@@ -1,22 +1,22 @@
-const API_KEY = 'hC9QqzaHwrBJ3IBDTHYyqN8Aumij6sBqiJWjcOE8';
-const BASE_URL = 'https://api.api-ninjas.com/v1/cars';
+const BASE_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles';
 
-// Fetches cars from API Ninjas — make is required, rest are optional filters
-export async function searchCars({ make, model, year, fuel_type }) {
-  const params = new URLSearchParams();
+// Search models by make. If year is provided, results also include vehicle type.
+export async function searchCars({ make, year }) {
+  let url;
 
-  params.set('make', make.trim());
-  if (model)     params.set('model',     model.trim());
-  if (year)      params.set('year',      year);
-  if (fuel_type) params.set('fuel_type', fuel_type);
+  if (year) {
+    url = `${BASE_URL}/GetModelsForMakeYear/make/${encodeURIComponent(make.trim())}/modelyear/${year}?format=json`;
+  } else {
+    url = `${BASE_URL}/GetModelsForMake/${encodeURIComponent(make.trim())}?format=json`;
+  }
 
-  const response = await fetch(`${BASE_URL}?${params}`, {
-    headers: { 'X-Api-Key': API_KEY }
-  });
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error(`API error ${response.status}: ${response.statusText}`);
   }
 
-  return response.json(); 
+  const data = await response.json();
+
+  return (data.Results ?? []).map(car => ({ ...car, year: year || null }));
 }

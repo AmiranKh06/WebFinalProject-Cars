@@ -1,14 +1,14 @@
 const GARAGE_KEY  = 'cardealer_garage';
 const PROFILE_KEY = 'cardealer_profile';
 
-// Builds an unique ID from car properties since API Ninjas has no ID field
+// Helpers
+
+// Builds a unique ID using NHTSA's Model_ID and the searched year
 export function buildCarId(car) {
-  return `${car.make}_${car.model}_${car.year}_${car.fuel_type}_${car.drive}`
-    .toLowerCase()
-    .replace(/\s+/g, '_');
+  return `${car.Model_ID}_${car.year || 'any'}`;
 }
 
-// Garage 
+// Garage
 
 // Returns the full garage array from localStorage
 export function getGarage() {
