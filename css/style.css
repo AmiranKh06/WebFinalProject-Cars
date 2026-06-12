@@ -886,3 +886,24 @@ button { cursor: pointer; font-family: var(--font-body); }
     grid-template-columns: repeat(2, 1fr);
   }
 }
+ 
+/* Small make label above the model name */
+.car-card__make {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+  margin-bottom: 2px;
+}
+ 
+/* Vehicle type badge (Passenger Car, Truck, etc.) */
+.type-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(122, 127, 150, 0.15);
+  color: var(--color-text-muted);
+}
