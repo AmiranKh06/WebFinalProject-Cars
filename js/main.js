@@ -1,37 +1,92 @@
-import { fetchData, getSaved, setSaved } from './api.js';
+import { searchCars }                                           from './api.js';
+import { getGarage, addToGarage, removeFromGarage,
+         updateCarStatus, isInGarage, buildCarId,
+         getProfile, saveProfile, clearProfile }                from './storage.js';
+import { createCarCard, createGarageCard,
+         showLoading, hideLoading,
+         showError, hideError, renderProfileCard }              from './ui.js';
 
-// redirect to login if no user session
-if (!localStorage.getItem('user')) {
-  window.location.href = 'login.html';
-}
+const page = document.body.dataset.page;
 
-document.getElementById('nav-user').textContent = localStorage.getItem('user') || '';
+if (page === 'index')   initIndexPage();
+if (page === 'garage')  initGaragePage();
+if (page === 'profile') initProfilePage();
 
-document.getElementById('logout-btn').addEventListener('click', () => {
-  localStorage.removeItem('user');
-  document.cookie = 'authorized=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-  window.location.href = 'login.html';
-});
+// Index page
 
-// --- State ---
-// keep your application state as an array of objects
-let savedItems = getSaved();
+function initIndexPage() {
+  const form        = document.getElementById('search-form');
+  const makeInput   = document.getElementById('input-make');
+  const yearSelect  = document.getElementById('input-year');
+  const grid        = document.getElementById('results-grid');
+  const loading     = document.getElementById('loading');
+  const errorEl     = document.getElementById('error-message');
+  const searchError = document.getElementById('search-error');
+  const resetBtn    = document.getElementById('reset-btn');
 
-function showLoading() {}
+  if (!form) return;
 
-function showError(message) {}
+  // Populate year dropdown dynamically
+  populateYears(yearSelect);
 
-function renderResults(items) {
-  // create a card element for each item
-  // the click handler inside forEach closes over the item — this is your closure
-  items.forEach(item => {
-    const card = document.createElement('article');
-    // build and append card content here
-    document.getElementById('results-grid').appendChild(card);
+  // Handle search form submit
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    searchError.textContent = '';
+
+    const make = makeInput.value.trim();
+    if (make.length < 2) {
+      searchError.textContent = 'Please enter a make (e.g. Toyota).';
+      return;
+    }
+
+    const year = yearSelect.value || null;
+
+    grid.innerHTML = '';
+    hideError(errorEl);
+    showLoading(loading);
+
+    try {
+      const cars = await searchCars({ make, year });
+
+      if (cars.length === 0) {
+        grid.innerHTML = `<p class="no-results">No results found for "<strong>${make}</strong>". Try a different make.</p>`;
+      } else {
+        // Closure: forEach handler closes over each iteration's car object
+        cars.forEach(car => {
+          const card = createCarCard(car);
+          grid.appendChild(card);
+        });
+      }
+    } catch (err) {
+      showError(errorEl, 'Could not load results. Check your connection and try again.');
+      console.error(err);
+    } finally {
+      hideLoading(loading);
+    }
+  });
+
+  // Clear results when form is reset
+  resetBtn.addEventListener('click', () => {
+    grid.innerHTML       = '';
+    searchError.textContent = '';
+    hideError(errorEl);
   });
 }
 
-document.getElementById('search-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  // validate, call fetchData, call showLoading/showError, call renderResults
-});
+// Fills the year <select> from current year down to 1990
+function populateYears(select) {
+  const current = new Date().getFullYear();
+  for (let y = current; y >= 1990; y--) {
+    const opt   = document.createElement('option');
+    opt.value   = y;
+    opt.textContent = y;
+    select.appendChild(opt);
+  }
+}
+
+// Garage page
+function initGaragePage() {}
+
+// Profile page
+function initProfilePage() {}
