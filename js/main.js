@@ -17,6 +17,7 @@ if (page === 'profile') initProfilePage();
 function initIndexPage() {
   const form        = document.getElementById('search-form');
   const makeInput   = document.getElementById('input-make');
+  const modelInput  = document.getElementById('input-model');
   const yearSelect  = document.getElementById('input-year');
   const grid        = document.getElementById('results-grid');
   const loading     = document.getElementById('loading');
@@ -33,10 +34,16 @@ function initIndexPage() {
 const debouncedSearch = debounce(async () => {
   const make = makeInput.value.trim();
   if (make.length < 2) return;
-  await runSearch(make, yearSelect.value || null, grid, loading, errorEl);
+  await runSearch(make, yearSelect.value || null, modelInput.value.trim(), grid, loading, errorEl);
 }, 600);
 
 makeInput.addEventListener('input', () => {
+  searchError.textContent = '';
+  hideError(errorEl);
+  debouncedSearch();
+});
+
+modelInput.addEventListener('input', () => {
   searchError.textContent = '';
   hideError(errorEl);
   debouncedSearch();
@@ -53,35 +60,12 @@ makeInput.addEventListener('input', () => {
       return;
     }
 
-    const year = yearSelect.value || null;
-
-    grid.innerHTML = '';
-    hideError(errorEl);
-    showLoading(loading);
-
-    try {
-      const cars = await searchCars({ make, year });
-
-      if (cars.length === 0) {
-        grid.innerHTML = `<p class="no-results">No results found for "<strong>${make}</strong>". Try a different make.</p>`;
-      } else {
-        // Closure: forEach handler closes over each iteration's car object
-        cars.forEach(car => {
-          const card = createCarCard(car);
-          grid.appendChild(card);
-        });
-      }
-    } catch (err) {
-      showError(errorEl, 'Could not load results. Check your connection and try again.');
-      console.error(err);
-    } finally {
-      hideLoading(loading);
-    }
+    await runSearch(make, yearSelect.value || null, modelInput.value.trim(), grid, loading, errorEl);
   });
 
   // Clear results when form is reset
   resetBtn.addEventListener('click', () => {
-    grid.innerHTML       = '';
+    grid.innerHTML          = '';
     searchError.textContent = '';
     hideError(errorEl);
   });
@@ -98,15 +82,23 @@ function populateYears(select) {
   }
 }
 
-// Runs the API search and renders results into the grid
-async function runSearch(make, year, grid, loading, errorEl) {
+// Runs the API search, filters by model client-side, and renders results
+async function runSearch(make, year, model, grid, loading, errorEl) {
   grid.innerHTML = '';
   hideError(errorEl);
   showLoading(loading);
   try {
-    const cars = await searchCars({ make, year });
+    let cars = await searchCars({ make, year });
+
+    // Client-side model filter since NHTSA doesn't support it as a param
+    if (model && model.length >= 2) {
+      cars = cars.filter(car =>
+        car.Model_Name.toLowerCase().includes(model.toLowerCase())
+      );
+    }
+
     if (cars.length === 0) {
-      grid.innerHTML = `<p class="no-results">No results found for "<strong>${make}</strong>". Try a different make.</p>`;
+      grid.innerHTML = `<p class="no-results">No results found for "<strong>${make}</strong>". Try a different make or model.</p>`;
     } else {
       cars.forEach(car => {
         const card = createCarCard(car);
@@ -132,7 +124,6 @@ function debounce(fn, delay) {
 
 // Garage page
 function initGaragePage() {
-  function initGaragePage() {
   const grid       = document.getElementById('garage-grid');
   const emptyState = document.getElementById('empty-state');
   const countEl    = document.getElementById('garage-count');
@@ -144,7 +135,6 @@ function initGaragePage() {
 
   renderGarage();
 
-  // Filter tab clicks
   filterTabs.addEventListener('click', (e) => {
     const tab = e.target.closest('.filter-tab');
     if (!tab) return;
@@ -177,7 +167,6 @@ function initGaragePage() {
       });
     }
   }
-}
 }
 
 // Profile page
