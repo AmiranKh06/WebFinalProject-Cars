@@ -42,7 +42,7 @@ export function createCarCard(car) {
 // Garage card
 
 // Creates a car card for the garage page with status controls
-export function createGarageCard(car) {
+export function createGarageCard(car, onRemove = () => {}) {
   const card = document.createElement('article');
   card.className = 'car-card';
   card.dataset.carId = car.carId;
@@ -82,6 +82,7 @@ export function createGarageCard(car) {
   removeBtn.addEventListener('click', () => {
     removeFromGarage(car.carId);
     card.remove();
+    onRemove();
   });
 
   return card;
