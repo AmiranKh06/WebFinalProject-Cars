@@ -32,6 +32,17 @@ export function createCarCard(car) {
     </div>
   `;
 
+  // Navigate to detail page when card body is clicked (not the save button)
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.save-btn')) return;
+    const params = new URLSearchParams({
+      make:  car.Make_Name,
+      model: car.Model_Name,
+      ...(car.year ? { year: car.year } : {})
+    });
+    window.location.href = `detail.html?${params}`;
+  });
+
   // Closure: each card's save button closes over its specific car object
   const saveBtn = card.querySelector('.save-btn');
   saveBtn.addEventListener('click', () => handleSaveToggle(car, carId, saveBtn));

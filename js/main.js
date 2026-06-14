@@ -11,6 +11,7 @@ const page = document.body.dataset.page;
 if (page === 'index')   initIndexPage();
 if (page === 'garage')  initGaragePage();
 if (page === 'profile') initProfilePage();
+if (page === 'detail')  initDetailPage();
 
 // Index page
 
@@ -167,6 +168,87 @@ function initGaragePage() {
       });
     }
   }
+}
+
+// Detail page
+async function initDetailPage() {
+  const params      = new URLSearchParams(window.location.search);
+  const make        = params.get('make')  || '';
+  const model       = params.get('model') || '';
+  const year        = params.get('year')  || '';
+
+  const loading     = document.getElementById('loading');
+  const errorEl     = document.getElementById('error-message');
+  const detailCard  = document.getElementById('detail-card');
+  const saveBtn     = document.getElementById('detail-save-btn');
+
+  if (!make || !model) {
+    showError(errorEl, 'No car specified. Go back and click a car card.');
+    hideLoading(loading);
+    return;
+  }
+
+  // Build a fake car object so it can be saved to the garage
+  const car = { Make_Name: make, Model_Name: model, year: year || null, Model_ID: `${make}_${model}` };
+
+  try {
+    // Fetch summary from Wikipedia
+    const query    = encodeURIComponent(`${make} ${model}`);
+    const wikiUrl  = `https://en.wikipedia.org/api/rest_v1/page/summary/${query}`;
+    const response = await fetch(wikiUrl);
+    const data     = response.ok ? await response.json() : null;
+
+    // Populate card
+    document.getElementById('detail-make').textContent        = make;
+    document.getElementById('detail-title').textContent       = model;
+    document.getElementById('detail-year').textContent        = year ? `Year: ${year}` : '';
+    document.getElementById('detail-description').textContent = data?.extract || 'No description available for this model.';
+
+    // Show image if Wikipedia returned one
+    const img         = document.getElementById('detail-image');
+    const placeholder = document.getElementById('detail-placeholder');
+    if (data?.thumbnail?.source) {
+      img.src = data.thumbnail.source;
+      img.alt = `${make} ${model}`;
+      img.removeAttribute('hidden');
+      placeholder.setAttribute('hidden', '');
+    }
+
+    // Wikipedia link
+    const wikiLink = document.getElementById('detail-wiki-link');
+    if (data?.content_urls?.desktop?.page) {
+      wikiLink.href = data.content_urls.desktop.page;
+    } else {
+      wikiLink.setAttribute('hidden', '');
+    }
+
+    // Save to garage button
+    const { isInGarage, addToGarage, removeFromGarage, buildCarId } = await import('./storage.js');
+    const carId = buildCarId(car);
+    updateSaveBtn(saveBtn, isInGarage(carId));
+
+    saveBtn.addEventListener('click', () => {
+      if (isInGarage(carId)) {
+        removeFromGarage(carId);
+      } else {
+        addToGarage(car);
+      }
+      updateSaveBtn(saveBtn, isInGarage(carId));
+    });
+
+    detailCard.removeAttribute('hidden');
+  } catch (err) {
+    showError(errorEl, 'Could not load car details. Check your connection and try again.');
+    console.error(err);
+  } finally {
+    hideLoading(loading);
+  }
+}
+
+// Updates the save button text based on garage state
+function updateSaveBtn(btn, inGarage) {
+  btn.textContent = inGarage ? '✓ Saved to Garage' : '+ Add to Garage';
+  btn.className   = inGarage ? 'btn btn--secondary' : 'btn btn--primary';
 }
 
 // Profile page
