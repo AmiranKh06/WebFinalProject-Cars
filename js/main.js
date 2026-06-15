@@ -54,10 +54,20 @@ modelInput.addEventListener('input', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     searchError.textContent = '';
-    
+
     const make = makeInput.value.trim();
     if (make.length < 2) {
       searchError.textContent = 'Please enter a make (e.g. Toyota).';
+      return;
+    }
+
+    if (!/^[a-zA-Z\s\-]+$/.test(make)) {
+      searchError.textContent = 'Make should only contain letters (e.g. Toyota, Land Rover).';
+      return;
+    }
+
+    if (!navigator.onLine) {
+      searchError.textContent = 'You appear to be offline. Please check your connection.';
       return;
     }
 
@@ -88,8 +98,14 @@ async function runSearch(make, year, model, grid, loading, errorEl) {
   grid.innerHTML = '';
   hideError(errorEl);
   showLoading(loading);
+
+  // Timeout: abort if API takes longer than 8 seconds
+  const controller = new AbortController();
+  const timeout    = setTimeout(() => controller.abort(), 8000);
+
   try {
     let cars = await searchCars({ make, year });
+    clearTimeout(timeout);
 
     // Client-side model filter since NHTSA doesn't support it as a param
     if (model && model.length >= 2) {
@@ -98,8 +114,10 @@ async function runSearch(make, year, model, grid, loading, errorEl) {
       );
     }
 
-    if (cars.length === 0) {
-      grid.innerHTML = `<p class="no-results">No results found for "<strong>${make}</strong>". Try a different make or model.</p>`;
+    if (cars.length === 0 && model) {
+      grid.innerHTML = `<p class="no-results">No "<strong>${model}</strong>" models found under "<strong>${make}</strong>". Try a different model name.</p>`;
+    } else if (cars.length === 0) {
+      grid.innerHTML = `<p class="no-results">No results found for "<strong>${make}</strong>". Check the spelling or try a different make.</p>`;
     } else {
       cars.forEach(car => {
         const card = createCarCard(car);
@@ -107,7 +125,14 @@ async function runSearch(make, year, model, grid, loading, errorEl) {
       });
     }
   } catch (err) {
-    showError(errorEl, 'Could not load results. Check your connection and try again.');
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') {
+      showError(errorEl, 'Request timed out — the server took too long to respond. Try again.');
+    } else if (!navigator.onLine) {
+      showError(errorEl, 'You are offline. Please check your internet connection.');
+    } else {
+      showError(errorEl, 'Could not load results. Check your connection and try again.');
+    }
     console.error(err);
   } finally {
     hideLoading(loading);
