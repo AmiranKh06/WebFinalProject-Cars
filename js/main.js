@@ -158,6 +158,12 @@ function initGaragePage() {
     grid.innerHTML = '';
     countEl.textContent = `${garage.length} car${garage.length !== 1 ? 's' : ''} saved`;
 
+    // Update stats bar
+    document.getElementById('stat-total').textContent       = garage.length;
+    document.getElementById('stat-wishlist').textContent    = garage.filter(c => c.status === 'wishlist').length;
+    document.getElementById('stat-owned').textContent       = garage.filter(c => c.status === 'owned').length;
+    document.getElementById('stat-test-driven').textContent = garage.filter(c => c.status === 'test_driven').length;
+
     if (filtered.length === 0) {
       emptyState.removeAttribute('hidden');
     } else {
