@@ -191,6 +191,15 @@ function initGaragePage() {
 
     if (filtered.length === 0) {
       emptyState.removeAttribute('hidden');
+      const emptyTitle    = emptyState.querySelector('.empty-state__title');
+      const emptySubtitle = emptyState.querySelector('.empty-state__subtitle');
+      if (garage.length === 0) {
+        emptyTitle.textContent  = 'Your garage is empty';
+        emptySubtitle.innerHTML = 'Search for cars on the <a class="empty-state__link" href="index.html">Discover</a> page and save them here.';
+      } else {
+        emptyTitle.textContent    = `No ${currentFilter === 'test_driven' ? 'test driven' : currentFilter} cars yet`;
+        emptySubtitle.textContent = 'Change the status of your saved cars using the dropdown on each card.';
+      }
     } else {
       emptyState.setAttribute('hidden', '');
       filtered.forEach(car => {
