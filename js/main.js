@@ -253,6 +253,11 @@ async function initDetailPage() {
       wikiLink.setAttribute('hidden', '');
     }
 
+    // Find Prices button — Google search for car price
+    const pricesLink  = document.getElementById('detail-prices-link');
+    const pricesQuery = encodeURIComponent(`${make} ${model} ${year || ''} price`.trim());
+    pricesLink.href   = `https://www.google.com/search?q=${pricesQuery}`;
+    
     // Save to garage button
     const { isInGarage, addToGarage, removeFromGarage, buildCarId } = await import('./storage.js');
     const carId = buildCarId(car);
@@ -424,3 +429,23 @@ function showFormFeedback(el, msg, type) {
   el.textContent = msg;
   el.className   = `form-feedback form-feedback--${type}`;
 }
+
+// Theme toggle
+
+(function initTheme() {
+  const btn = document.getElementById('theme-toggle');
+  const saved = localStorage.getItem('cardealer_theme');
+
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    if (btn) btn.textContent = '🌙';
+  }
+
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light');
+    btn.textContent = isLight ? '🌙' : '☀️';
+    localStorage.setItem('cardealer_theme', isLight ? 'light' : 'dark');
+  });
+})();

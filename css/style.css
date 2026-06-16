@@ -1119,3 +1119,14 @@ button { cursor: pointer; font-family: var(--font-body); }
 }
 
 .brand-tag__remove:hover { opacity: 1; }
+
+body.light {
+  --color-bg:         #f0f2f5;
+  --color-surface:    #ffffff;
+  --color-card:       #ffffff;
+  --color-border:     #dde1ea;
+  --color-text:       #0b0c10;
+  --color-text-muted: #555a72;
+  --color-text-faint: #aab0c4;
+  --color-accent-dim: rgba(230, 57, 70, 0.08);
+}
