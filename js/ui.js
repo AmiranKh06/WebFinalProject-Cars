@@ -38,7 +38,6 @@ export function createCarCard(car) {
     const params = new URLSearchParams({
       make:  car.Make_Name,
       model: car.Model_Name,
-      ...(car.year ? { year: car.year } : {})
     });
     window.location.href = `detail.html?${params}`;
   });
@@ -57,6 +56,16 @@ export function createGarageCard(car, onRemove = () => {}) {
   const card = document.createElement('article');
   card.className = 'car-card';
   card.dataset.carId = car.carId;
+
+  // Navigate to detail page when card is clicked
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-btn') || e.target.closest('.status-select')) return;
+    const params = new URLSearchParams({
+      make:  car.Make_Name,
+      model: car.Model_Name,
+    });
+    window.location.href = `detail.html?${params}`;
+  });
 
   card.innerHTML = `
     <div class="car-card__stripe"></div>

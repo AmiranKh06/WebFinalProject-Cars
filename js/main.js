@@ -204,7 +204,7 @@ function initGaragePage() {
 // Detail page
 async function initDetailPage() {
   const params      = new URLSearchParams(window.location.search);
-  const make        = params.get('make')  || '';
+  const make = (params.get('make') || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   const model       = params.get('model') || '';
   const year        = params.get('year')  || '';
 
@@ -257,7 +257,7 @@ async function initDetailPage() {
     const pricesLink  = document.getElementById('detail-prices-link');
     const pricesQuery = encodeURIComponent(`${make} ${model} ${year || ''} price`.trim());
     pricesLink.href   = `https://www.google.com/search?q=${pricesQuery}`;
-    
+
     // Save to garage button
     const { isInGarage, addToGarage, removeFromGarage, buildCarId } = await import('./storage.js');
     const carId = buildCarId(car);
