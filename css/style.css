@@ -1151,3 +1151,10 @@ body.light {
   .brands-picker__input-row { flex-direction: column; }
   .brands-picker__input-row .btn { width: 100%; }
 }
+
+/* === LOGO SVG === */
+.header__logo-svg {
+  width: 32px;
+  height: 20px;
+  flex-shrink: 0;
+}
