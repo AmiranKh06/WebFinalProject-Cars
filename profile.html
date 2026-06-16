@@ -81,6 +81,7 @@
           <select class="form-group__select" id="preferred-type" name="preferredType">
             <option value="">Select a type…</option>
             <option value="sedan">Sedan</option>
+            <option value="coupe">Coupe</option>
             <option value="suv">SUV / Crossover</option>
             <option value="sports">Sports Car</option>
             <option value="truck">Truck</option>
@@ -89,29 +90,64 @@
           </select>
         </div>
 
-        <fieldset class="form-group form-group--fieldset">
-          <legend class="form-group__label">Favorite Brands</legend>
-          <div class="checkbox-grid">
-            <label class="checkbox-item">
-              <input class="checkbox-item__input" type="checkbox" name="brands" value="toyota"> Toyota
-            </label>
-            <label class="checkbox-item">
-              <input class="checkbox-item__input" type="checkbox" name="brands" value="bmw"> BMW
-            </label>
-            <label class="checkbox-item">
-              <input class="checkbox-item__input" type="checkbox" name="brands" value="ford"> Ford
-            </label>
-            <label class="checkbox-item">
-              <input class="checkbox-item__input" type="checkbox" name="brands" value="honda"> Honda
-            </label>
-            <label class="checkbox-item">
-              <input class="checkbox-item__input" type="checkbox" name="brands" value="mercedes"> Mercedes
-            </label>
-            <label class="checkbox-item">
-              <input class="checkbox-item__input" type="checkbox" name="brands" value="porsche"> Porsche
-            </label>
+        <div class="form-group">
+          <label class="form-group__label" for="brands-select">Favorite Brands</label>
+          <div class="brands-picker">
+            <div class="brands-picker__input-row">
+              <select class="form-group__select" id="brands-select">
+                <option value="">Pick a brand…</option>
+                <option value="Acura">Acura</option>
+                <option value="Alfa Romeo">Alfa Romeo</option>
+                <option value="Aston Martin">Aston Martin</option>
+                <option value="Audi">Audi</option>
+                <option value="Bentley">Bentley</option>
+                <option value="BMW">BMW</option>
+                <option value="Bugatti">Bugatti</option>
+                <option value="Buick">Buick</option>
+                <option value="Cadillac">Cadillac</option>
+                <option value="Chevrolet">Chevrolet</option>
+                <option value="Chrysler">Chrysler</option>
+                <option value="Dodge">Dodge</option>
+                <option value="Ferrari">Ferrari</option>
+                <option value="Fiat">Fiat</option>
+                <option value="Ford">Ford</option>
+                <option value="Genesis">Genesis</option>
+                <option value="GMC">GMC</option>
+                <option value="Honda">Honda</option>
+                <option value="Hyundai">Hyundai</option>
+                <option value="Infiniti">Infiniti</option>
+                <option value="Jaguar">Jaguar</option>
+                <option value="Jeep">Jeep</option>
+                <option value="Kia">Kia</option>
+                <option value="Lamborghini">Lamborghini</option>
+                <option value="Land Rover">Land Rover</option>
+                <option value="Lexus">Lexus</option>
+                <option value="Lincoln">Lincoln</option>
+                <option value="Lotus">Lotus</option>
+                <option value="Maserati">Maserati</option>
+                <option value="Mazda">Mazda</option>
+                <option value="McLaren">McLaren</option>
+                <option value="Mercedes-Benz">Mercedes-Benz</option>
+                <option value="Mini">Mini</option>
+                <option value="Mitsubishi">Mitsubishi</option>
+                <option value="Nissan">Nissan</option>
+                <option value="Pagani">Pagani</option>
+                <option value="Pontiac">Pontiac</option>
+                <option value="Porsche">Porsche</option>
+                <option value="Ram">Ram</option>
+                <option value="Rolls-Royce">Rolls-Royce</option>
+                <option value="Subaru">Subaru</option>
+                <option value="Tesla">Tesla</option>
+                <option value="Toyota">Toyota</option>
+                <option value="Volkswagen">Volkswagen</option>
+                <option value="Volvo">Volvo</option>
+              </select>
+              <button class="btn btn--primary" type="button" id="add-brand-btn">Add</button>
+            </div>
+            <div class="brands-picker__tags" id="brands-tags"></div>
+            <input type="hidden" name="brands" id="brands-hidden">
           </div>
-        </fieldset>
+        </div>
 
         <fieldset class="form-group form-group--fieldset">
           <legend class="form-group__label">Driving Style</legend>

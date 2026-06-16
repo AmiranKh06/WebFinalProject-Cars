@@ -283,4 +283,144 @@ function updateSaveBtn(btn, inGarage) {
 }
 
 // Profile page
-function initProfilePage() {}
+function initProfilePage() {
+  const form        = document.getElementById('profile-form');
+  const feedback    = document.getElementById('form-feedback');
+  const preview     = document.getElementById('profile-preview-content');
+  const bioInput    = document.getElementById('bio');
+  const bioCount    = document.getElementById('bio-count');
+  const clearBtn    = document.getElementById('clear-btn');
+  const brandSelect = document.getElementById('brands-select');
+  const addBrandBtn = document.getElementById('add-brand-btn');
+  const brandsHidden= document.getElementById('brands-hidden');
+  const brandsTags  = document.getElementById('brands-tags');
+
+  if (!form) return;
+
+  let selectedBrands = [];
+
+  // Load saved profile into form on page visit
+  const saved = getProfile();
+  if (saved) {
+    populateForm(form, saved);
+    if (saved.brands) {
+      saved.brands.forEach(b => addBrand(b));
+    }
+    preview.innerHTML = renderProfileCard(saved);
+  }
+
+  // Live bio character counter
+  bioInput.addEventListener('input', () => {
+    bioCount.textContent = bioInput.value.length;
+  });
+
+  // Add brand tag when Add button is clicked
+  addBrandBtn.addEventListener('click', () => {
+    const val = brandSelect.value;
+    if (!val || selectedBrands.includes(val)) return;
+    addBrand(val);
+    brandSelect.value = '';
+  });
+
+  // Add a brand to the tags list
+  function addBrand(brand) {
+    if (selectedBrands.includes(brand)) return;
+    selectedBrands.push(brand);
+    updateBrandsHidden();
+
+    const tag = document.createElement('span');
+    tag.className = 'brand-tag';
+    tag.innerHTML = `${brand} <button class="brand-tag__remove" type="button" aria-label="Remove ${brand}">×</button>`;
+    tag.querySelector('.brand-tag__remove').addEventListener('click', () => {
+      selectedBrands = selectedBrands.filter(b => b !== brand);
+      updateBrandsHidden();
+      tag.remove();
+    });
+    brandsTags.appendChild(tag);
+  }
+
+  // Sync hidden input with selectedBrands array
+  function updateBrandsHidden() {
+    brandsHidden.value = selectedBrands.join(',');
+  }
+
+  // Form submit — validate, save, update preview
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    feedback.className   = 'form-feedback';
+    feedback.textContent = '';
+
+    const displayName = form.displayName.value.trim();
+    const email       = form.email.value.trim();
+    const birthYear   = form.birthYear.value;
+
+    if (displayName.length < 2) {
+      showFormFeedback(feedback, 'Display name must be at least 2 characters.', 'error');
+      form.displayName.classList.add('is-invalid');
+      return;
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showFormFeedback(feedback, 'Please enter a valid email address.', 'error');
+      return;
+    }
+
+    if (birthYear && (birthYear < 1940 || birthYear > 2010)) {
+      showFormFeedback(feedback, 'Birth year must be between 1940 and 2010.', 'error');
+      return;
+    }
+
+    form.displayName.classList.remove('is-invalid');
+
+    const drivingStyle = form.querySelector('input[name="drivingStyle"]:checked')?.value || '';
+
+    const profile = {
+      displayName,
+      email,
+      birthYear: birthYear || '',
+      preferredType: form.preferredType.value,
+      brands: selectedBrands,
+      drivingStyle,
+      bio: form.bio.value.trim()
+    };
+
+    saveProfile(profile);
+    preview.innerHTML = renderProfileCard(profile);
+    showFormFeedback(feedback, '✓ Profile saved successfully!', 'success');
+  });
+
+  // Clear button — wipe form and localStorage
+  clearBtn.addEventListener('click', () => {
+    form.reset();
+    bioCount.textContent  = '0';
+    feedback.className    = 'form-feedback';
+    feedback.textContent  = '';
+    selectedBrands        = [];
+    brandsTags.innerHTML  = '';
+    brandsHidden.value    = '';
+    clearProfile();
+    preview.innerHTML = '<p class="profile-preview__empty">No profile saved yet.</p>';
+  });
+}
+
+// Populates the form fields from a saved profile object (brands handled separately)
+function populateForm(form, profile) {
+  form.displayName.value   = profile.displayName   || '';
+  form.email.value         = profile.email         || '';
+  form.birthYear.value     = profile.birthYear     || '';
+  form.preferredType.value = profile.preferredType || '';
+  form.bio.value           = profile.bio           || '';
+
+  document.getElementById('bio-count').textContent = (profile.bio || '').length;
+
+  if (profile.drivingStyle) {
+    const radio = form.querySelector(`input[name="drivingStyle"][value="${profile.drivingStyle}"]`);
+    if (radio) radio.checked = true;
+  }
+}
+
+// Shows success or error feedback under the form
+function showFormFeedback(el, msg, type) {
+  el.textContent = msg;
+  el.className   = `form-feedback form-feedback--${type}`;
+}
