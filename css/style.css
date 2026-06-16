@@ -1130,3 +1130,24 @@ body.light {
   --color-text-faint: #aab0c4;
   --color-accent-dim: rgba(230, 57, 70, 0.08);
 }
+
+/* === MOBILE FIXES === */
+@media (max-width: 600px) {
+  .header__logo-text { font-size: 1.1rem; }
+  .header__nav { gap: var(--space-sm); }
+  .header__nav-link { font-size: 0.75rem; }
+
+  .detail-card__body { padding: var(--space-md); }
+  .detail-card__title { font-size: 1.6rem; }
+  .detail-card__actions { flex-direction: column; }
+  .detail-card__actions .btn { width: 100%; text-align: center; }
+
+  .profile-section { grid-template-columns: 1fr; }
+  .form-actions { flex-direction: column; }
+  .form-actions .btn { width: 100%; }
+
+  .garage-stats { grid-template-columns: repeat(2, 1fr); }
+
+  .brands-picker__input-row { flex-direction: column; }
+  .brands-picker__input-row .btn { width: 100%; }
+}
