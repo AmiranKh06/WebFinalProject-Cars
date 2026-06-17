@@ -482,20 +482,60 @@ function showFormFeedback(el, msg, type) {
 
 // Theme toggle
 
+// Theme toggle
+
+const ICON_DARK_TIRE = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- outer tire -->
+  <circle cx="12" cy="12" r="10" fill="#1a1b23" stroke="#7a7f96" stroke-width="2"/>
+  <!-- tread lines -->
+  <circle cx="12" cy="12" r="6.5" fill="none" stroke="#7a7f96" stroke-width="1.5"/>
+  <!-- rim spokes -->
+  <line x1="12" y1="5.5" x2="12" y2="8.5"   stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="12" y1="15.5" x2="12" y2="18.5" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="5.5" y1="12" x2="8.5" y2="12"   stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="15.5" y1="12" x2="18.5" y2="12" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="7.4" y1="7.4" x2="9.5" y2="9.5"   stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="14.5" y1="14.5" x2="16.6" y2="16.6" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="16.6" y1="7.4" x2="14.5" y2="9.5"   stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="9.5" y1="14.5" x2="7.4" y2="16.6" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- center hub -->
+  <circle cx="12" cy="12" r="2" fill="#7a7f96"/>
+</svg>`;
+
+const ICON_YELLOW_TIRE = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- outer tire -->
+  <circle cx="12" cy="12" r="10" fill="#2a2000" stroke="#f0a500" stroke-width="2"/>
+  <!-- tread lines -->
+  <circle cx="12" cy="12" r="6.5" fill="none" stroke="#f0a500" stroke-width="1.5"/>
+  <!-- rim spokes -->
+  <line x1="12" y1="5.5" x2="12" y2="8.5"   stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="12" y1="15.5" x2="12" y2="18.5" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="5.5" y1="12" x2="8.5" y2="12"   stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="15.5" y1="12" x2="18.5" y2="12" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="7.4" y1="7.4" x2="9.5" y2="9.5"   stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="14.5" y1="14.5" x2="16.6" y2="16.6" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="16.6" y1="7.4" x2="14.5" y2="9.5"   stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="9.5" y1="14.5" x2="7.4" y2="16.6" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- center hub -->
+  <circle cx="12" cy="12" r="2" fill="#f0a500"/>
+</svg>`;
+
 (function initTheme() {
   const btn = document.getElementById('theme-toggle');
   const saved = localStorage.getItem('cardealer_theme');
 
   if (saved === 'light') {
     document.body.classList.add('light');
-    if (btn) btn.textContent = '🌙';
+    if (btn) btn.innerHTML = ICON_DARK_TIRE;
+  } else {
+    if (btn) btn.innerHTML = ICON_YELLOW_TIRE;
   }
 
   if (!btn) return;
 
   btn.addEventListener('click', () => {
     const isLight = document.body.classList.toggle('light');
-    btn.textContent = isLight ? '🌙' : '☀️';
+    btn.innerHTML = isLight ? ICON_DARK_TIRE : ICON_YELLOW_TIRE;
     localStorage.setItem('cardealer_theme', isLight ? 'light' : 'dark');
   });
 })();
