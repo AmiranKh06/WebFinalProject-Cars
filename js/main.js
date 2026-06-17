@@ -1,17 +1,46 @@
 import { searchCars }                                           from './api.js';
 import { getGarage, addToGarage, removeFromGarage,
          updateCarStatus, isInGarage, buildCarId,
-         getProfile, saveProfile, clearProfile }                from './storage.js';
+         getProfile, saveProfile, clearProfile,
+         setAuthed, isAuthed, clearAuth }              from './storage.js';
 import { createCarCard, createGarageCard,
          showLoading, hideLoading,
          showError, hideError, renderProfileCard }              from './ui.js';
 
 const page = document.body.dataset.page;
+guardPage();
+updateNav();
 
 if (page === 'index')   initIndexPage();
 if (page === 'garage')  initGaragePage();
 if (page === 'profile') initProfilePage();
 if (page === 'detail')  initDetailPage();
+
+// Redirects to profile page if user hasn't saved a profile yet
+function guardPage() {
+  if (page === 'profile') return; // always allow profile page
+  if (!isAuthed()) {
+    window.location.href = 'profile.html';
+  }
+}
+
+// Dims nav links and blocks clicks when user isn't authed
+function updateNav() {
+  const authed = isAuthed();
+  document.querySelectorAll('.header__nav-link:not([href="profile.html"])').forEach(link => {
+    if (authed) {
+      link.removeAttribute('aria-disabled');
+      link.style.opacity = '';
+      link.style.pointerEvents = '';
+      link.style.cursor = '';
+    } else {
+      link.setAttribute('aria-disabled', 'true');
+      link.style.opacity = '0.35';
+      link.style.pointerEvents = 'none';
+      link.style.cursor = 'not-allowed';
+    }
+  });
+}
 
 // Index page
 
@@ -405,8 +434,12 @@ function initProfilePage() {
     };
 
     saveProfile(profile);
-    preview.innerHTML = renderProfileCard(profile);
-    showFormFeedback(feedback, '✓ Profile saved successfully!', 'success');
+    setAuthed();
+    updateNav();
+    showFormFeedback(feedback, '✓ Profile saved! Redirecting…', 'success');
+    setTimeout(() => {
+      window.location.replace('index.html');
+    }, 800);
   });
 
   // Clear button — wipe form and localStorage
@@ -419,7 +452,9 @@ function initProfilePage() {
     brandsTags.innerHTML  = '';
     brandsHidden.value    = '';
     clearProfile();
+    clearAuth();
     preview.innerHTML = '<p class="profile-preview__empty">No profile saved yet.</p>';
+    updateNav();
   });
 }
 

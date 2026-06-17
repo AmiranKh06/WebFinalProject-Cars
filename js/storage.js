@@ -76,3 +76,22 @@ export function saveProfile(profile) {
 export function clearProfile() {
   localStorage.removeItem(PROFILE_KEY);
 }
+
+// Auth (profile-based gate)
+
+const AUTH_KEY = 'cardealer_authed';
+
+// Called after a profile is successfully saved
+export function setAuthed() {
+  localStorage.setItem(AUTH_KEY, '1');
+}
+
+// Returns true if the user has ever saved a profile
+export function isAuthed() {
+  return localStorage.getItem(AUTH_KEY) === '1';
+}
+
+// Called when profile is cleared — logs the user out
+export function clearAuth() {
+  localStorage.removeItem(AUTH_KEY);
+}
