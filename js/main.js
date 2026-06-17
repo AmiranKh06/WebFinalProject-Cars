@@ -50,6 +50,12 @@ modelInput.addEventListener('input', () => {
   debouncedSearch();
 });
 
+yearSelect.addEventListener('change', () => {
+  searchError.textContent = '';
+  hideError(errorEl);
+  debouncedSearch();
+});
+
   // Handle search form submit
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
