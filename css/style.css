@@ -1179,3 +1179,18 @@ body.light {
 body.light .hero__image {
   filter: invert(1);
 }
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  padding: var(--space-xs) var(--space-sm);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
