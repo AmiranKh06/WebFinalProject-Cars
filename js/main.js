@@ -2,7 +2,8 @@ import { searchCars }                                           from './api.js';
 import { getGarage, addToGarage, removeFromGarage,
          updateCarStatus, isInGarage, buildCarId,
          getProfile, saveProfile, clearProfile,
-         setAuthed, isAuthed, clearAuth }              from './storage.js';
+         setAuthed, isAuthed, clearAuth,
+         getCurrentUser, getAllProfiles, accountExists, logout, setCurrentUser } from './storage.js';
 import { createCarCard, createGarageCard,
          showLoading, hideLoading,
          showError, hideError, renderProfileCard }              from './ui.js';
@@ -24,22 +25,64 @@ function guardPage() {
   }
 }
 
-// Dims nav links and blocks clicks when user isn't authed
+// Dims nav links and blocks clicks when user isn't authed, and shows profile chip
 function updateNav() {
-  const authed = isAuthed();
+  const authed  = isAuthed();
+  const profile = getProfile();
+
   document.querySelectorAll('.header__nav-link:not([href="profile.html"])').forEach(link => {
     if (authed) {
       link.removeAttribute('aria-disabled');
-      link.style.opacity = '';
+      link.style.opacity      = '';
       link.style.pointerEvents = '';
-      link.style.cursor = '';
+      link.style.cursor       = '';
     } else {
       link.setAttribute('aria-disabled', 'true');
-      link.style.opacity = '0.35';
+      link.style.opacity       = '0.35';
       link.style.pointerEvents = 'none';
-      link.style.cursor = 'not-allowed';
+      link.style.cursor        = 'not-allowed';
     }
   });
+
+  // Profile chip — grouped with theme toggle on the right
+  const header = document.querySelector('.header__inner');
+  if (!header) return;
+
+  // Create the right-side group once
+  let rightGroup = header.querySelector('.header__right');
+  if (!rightGroup) {
+    rightGroup = document.createElement('div');
+    rightGroup.className = 'header__right';
+    const themeBtn = header.querySelector('#theme-toggle');
+    header.insertBefore(rightGroup, themeBtn);
+    rightGroup.appendChild(themeBtn);
+  }
+
+  let chip = rightGroup.querySelector('.profile-chip');
+
+  if (authed && profile) {
+    if (!chip) {
+      chip = document.createElement('a');
+      chip.className = 'profile-chip';
+      chip.href = 'profile.html';
+      rightGroup.appendChild(chip);
+    }
+    const initials = profile.displayName.slice(0, 2).toUpperCase();
+    chip.innerHTML = `
+      <span class="profile-chip__avatar">${initials}</span>
+      <span class="profile-chip__name">${escapeHtml(profile.displayName)}</span>
+    `;
+  } else if (chip) {
+    chip.remove();
+  }
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // Index page
@@ -339,23 +382,95 @@ function initProfilePage() {
   const bioInput    = document.getElementById('bio');
   const bioCount    = document.getElementById('bio-count');
   const clearBtn    = document.getElementById('clear-btn');
+  const logoutBtn   = document.getElementById('logout-btn');
   const brandSelect = document.getElementById('brands-select');
   const addBrandBtn = document.getElementById('add-brand-btn');
   const brandsHidden= document.getElementById('brands-hidden');
   const brandsTags  = document.getElementById('brands-tags');
+  const switcher    = document.getElementById('account-switcher');
 
   if (!form) return;
 
   let selectedBrands = [];
 
-  // Load saved profile into form on page visit
-  const saved = getProfile();
-  if (saved) {
+  // ── Render account switcher (shown when logged out) ──
+  function renderSwitcher() {
+    if (!switcher) return;
+    const profiles = getAllProfiles();
+    if (!profiles.length) { switcher.hidden = true; return; }
+
+    const formWrap = document.getElementById('profile-form-wrap');
+    if (formWrap) formWrap.hidden = true;
+    switcher.hidden = false;
+    switcher.innerHTML = `
+      <p class="switcher__label">Existing accounts:</p>
+      <div class="switcher__list">
+        ${profiles.map(p => `
+          <div class="switcher__item" data-email="${escapeHtml(p.email)}">
+            <div class="switcher__item-left">
+              <span class="switcher__avatar">${p.displayName.slice(0,2).toUpperCase()}</span>
+              <span class="switcher__info">
+                <span class="switcher__name">${escapeHtml(p.displayName)}</span>
+                <span class="switcher__email">${escapeHtml(p.email)}</span>
+              </span>
+            </div>
+            <button class="switcher__delete" type="button" data-delete="${escapeHtml(p.email)}" title="Delete account">🗑</button>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn btn--ghost switcher__new-btn" type="button" id="create-new-btn">+ Create New Account</button>
+    `;
+
+    switcher.querySelectorAll('.switcher__item').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.switcher__delete')) return;
+        setCurrentUser(row.dataset.email);
+        window.location.replace('index.html');
+      });
+    });
+
+    switcher.querySelectorAll('.switcher__delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const email    = btn.dataset.delete;
+        const accounts = JSON.parse(localStorage.getItem('cardealer_accounts') || '{}');
+        delete accounts[email];
+        localStorage.setItem('cardealer_accounts', JSON.stringify(accounts));
+        renderSwitcher();
+      });
+    });
+
+    document.getElementById('create-new-btn').addEventListener('click', () => {
+      switcher.hidden = true;
+      if (formWrap) formWrap.hidden = false;
+    });
+  }
+
+  // ── Decide what to show based on login state ──
+  const loggedIn = isAuthed();
+  const saved    = getProfile();
+
+  if (loggedIn && saved) {
+    // Already logged in — show their profile to edit, hide switcher
+    if (switcher) switcher.hidden = true;
     populateForm(form, saved);
-    if (saved.brands) {
-      saved.brands.forEach(b => addBrand(b));
-    }
+    if (saved.brands) saved.brands.forEach(b => addBrand(b));
     preview.innerHTML = renderProfileCard(saved);
+    document.getElementById('profile-preview').removeAttribute('hidden');
+    if (logoutBtn) logoutBtn.removeAttribute('hidden');
+
+    // Lock email field so they can't accidentally change account
+    const emailField = document.getElementById('email');
+    if (emailField) {
+      emailField.readOnly = true;
+      emailField.style.opacity = '0.6';
+      emailField.title = 'Log out to create a new account';
+    }
+  } else {
+    // Not logged in — show blank form + account switcher
+    renderSwitcher();
+    document.getElementById('profile-preview').setAttribute('hidden', '');
+    if (logoutBtn) logoutBtn.setAttribute('hidden', '');
   }
 
   // Live bio character counter
@@ -371,7 +486,6 @@ function initProfilePage() {
     brandSelect.value = '';
   });
 
-  // Add a brand to the tags list
   function addBrand(brand) {
     if (selectedBrands.includes(brand)) return;
     selectedBrands.push(brand);
@@ -388,19 +502,18 @@ function initProfilePage() {
     brandsTags.appendChild(tag);
   }
 
-  // Sync hidden input with selectedBrands array
   function updateBrandsHidden() {
     brandsHidden.value = selectedBrands.join(',');
   }
 
-  // Form submit — validate, save, update preview
+  // Form submit
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     feedback.className   = 'form-feedback';
     feedback.textContent = '';
 
     const displayName = form.displayName.value.trim();
-    const email       = form.email.value.trim();
+    const email       = form.email.value.trim().toLowerCase();
     const birthYear   = form.birthYear.value;
 
     if (displayName.length < 2) {
@@ -409,8 +522,15 @@ function initProfilePage() {
       return;
     }
 
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       showFormFeedback(feedback, 'Please enter a valid email address.', 'error');
+      return;
+    }
+
+    // Block creating a new account if someone else is already logged in
+    if (!loggedIn && accountExists(email) && email !== getCurrentUser()) {
+      showFormFeedback(feedback, 'An account with this email already exists. Use the switcher below to log in.', 'error');
+      renderSwitcher();
       return;
     }
 
@@ -436,13 +556,12 @@ function initProfilePage() {
     saveProfile(profile);
     setAuthed();
     updateNav();
+    if (logoutBtn) logoutBtn.removeAttribute('hidden');
     showFormFeedback(feedback, '✓ Profile saved! Redirecting…', 'success');
-    setTimeout(() => {
-      window.location.replace('index.html');
-    }, 800);
+    setTimeout(() => window.location.replace('index.html'), 800);
   });
 
-  // Clear button — wipe form and localStorage
+  // Clear button — only resets form fields
   clearBtn.addEventListener('click', () => {
     form.reset();
     bioCount.textContent  = '0';
@@ -451,11 +570,16 @@ function initProfilePage() {
     selectedBrands        = [];
     brandsTags.innerHTML  = '';
     brandsHidden.value    = '';
-    clearProfile();
-    clearAuth();
-    preview.innerHTML = '<p class="profile-preview__empty">No profile saved yet.</p>';
-    updateNav();
   });
+
+  // Logout button
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      logout();
+      updateNav();
+      window.location.href = 'profile.html';
+    });
+  }
 }
 
 // Populates the form fields from a saved profile object (brands handled separately)
@@ -482,41 +606,31 @@ function showFormFeedback(el, msg, type) {
 
 // Theme toggle
 
-// Theme toggle
-
 const ICON_DARK_TIRE = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <!-- outer tire -->
   <circle cx="12" cy="12" r="10" fill="#1a1b23" stroke="#7a7f96" stroke-width="2"/>
-  <!-- tread lines -->
   <circle cx="12" cy="12" r="6.5" fill="none" stroke="#7a7f96" stroke-width="1.5"/>
-  <!-- rim spokes -->
-  <line x1="12" y1="5.5" x2="12" y2="8.5"   stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="12" y1="5.5" x2="12" y2="8.5" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
   <line x1="12" y1="15.5" x2="12" y2="18.5" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="5.5" y1="12" x2="8.5" y2="12"   stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="5.5" y1="12" x2="8.5" y2="12" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
   <line x1="15.5" y1="12" x2="18.5" y2="12" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="7.4" y1="7.4" x2="9.5" y2="9.5"   stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="7.4" y1="7.4" x2="9.5" y2="9.5" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
   <line x1="14.5" y1="14.5" x2="16.6" y2="16.6" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="16.6" y1="7.4" x2="14.5" y2="9.5"   stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="16.6" y1="7.4" x2="14.5" y2="9.5" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
   <line x1="9.5" y1="14.5" x2="7.4" y2="16.6" stroke="#7a7f96" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- center hub -->
   <circle cx="12" cy="12" r="2" fill="#7a7f96"/>
 </svg>`;
 
 const ICON_YELLOW_TIRE = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <!-- outer tire -->
   <circle cx="12" cy="12" r="10" fill="#2a2000" stroke="#f0a500" stroke-width="2"/>
-  <!-- tread lines -->
   <circle cx="12" cy="12" r="6.5" fill="none" stroke="#f0a500" stroke-width="1.5"/>
-  <!-- rim spokes -->
-  <line x1="12" y1="5.5" x2="12" y2="8.5"   stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="12" y1="5.5" x2="12" y2="8.5" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
   <line x1="12" y1="15.5" x2="12" y2="18.5" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="5.5" y1="12" x2="8.5" y2="12"   stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="5.5" y1="12" x2="8.5" y2="12" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
   <line x1="15.5" y1="12" x2="18.5" y2="12" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="7.4" y1="7.4" x2="9.5" y2="9.5"   stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="7.4" y1="7.4" x2="9.5" y2="9.5" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
   <line x1="14.5" y1="14.5" x2="16.6" y2="16.6" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="16.6" y1="7.4" x2="14.5" y2="9.5"   stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="16.6" y1="7.4" x2="14.5" y2="9.5" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
   <line x1="9.5" y1="14.5" x2="7.4" y2="16.6" stroke="#f0a500" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- center hub -->
   <circle cx="12" cy="12" r="2" fill="#f0a500"/>
 </svg>`;
 

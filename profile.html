@@ -41,6 +41,9 @@
 
     <section class="profile-section">
 
+      <div id="account-switcher" class="account-switcher" hidden></div>
+
+      <div id="profile-form-wrap">
       <form class="profile-form" id="profile-form" novalidate>
 
         <div class="form-group">
@@ -60,13 +63,14 @@
         </div>
 
         <div class="form-group">
-          <label class="form-group__label" for="email">Email</label>
+          <label class="form-group__label" for="email">Email <span class="form-group__required">*</span></label>
           <input
             class="form-group__input"
             type="email"
             id="email"
             name="email"
             placeholder="your@email.com"
+            required
           >
         </div>
 
@@ -193,11 +197,13 @@
 
         <div class="form-actions">
           <button class="btn btn--primary" type="submit">Save Profile</button>
-          <button class="btn btn--ghost" type="button" id="clear-btn">Clear</button>
+          <button class="btn btn--ghost" type="button" id="clear-btn">Clear Form</button>
+          <button class="btn btn--danger" type="button" id="logout-btn" hidden>Log Out</button>
         </div>
 
         <div class="form-feedback" id="form-feedback" aria-live="polite"></div>
       </form>
+      </div>
 
       <aside class="profile-preview" id="profile-preview">
         <h2 class="profile-preview__title">Saved Profile</h2>
@@ -211,6 +217,7 @@
 
   <footer class="footer">
     <div class="footer__inner">
+      
       <span class="footer__note">Data by <a class="footer__link" href="https://vpic.nhtsa.dot.gov" target="_blank" rel="noopener">NHTSA</a></span>
     </div>
   </footer>
