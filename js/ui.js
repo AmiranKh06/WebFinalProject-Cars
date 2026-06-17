@@ -96,6 +96,7 @@ export function createGarageCard(car, onRemove = () => {}) {
     const badge = card.querySelector('.status-badge');
     badge.className   = `status-badge status-badge--${statusSelect.value}`;
     badge.textContent = statusLabel(statusSelect.value);
+    onRemove();
   });
 
   const removeBtn = card.querySelector('.remove-btn');
